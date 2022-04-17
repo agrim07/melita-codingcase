@@ -1,0 +1,211 @@
+swagger: "2.0"
+info:
+  description: "This is a an authenticated Order Taking API that is exposed to 3rd party endpoints (example an ERP system) selling products on behalf of Melita."
+  version: "1.0.0"
+  title: "Product and its plan order taking API"
+  termsOfService: "http://swagger.io/terms/"
+  contact:
+    email: "dhankhar.amaresh@gmail.com"
+  license:
+    name: "Apache 2.0"
+    url: "http://www.apache.org/licenses/LICENSE-2.0.html"
+host: "localhost:8080"
+basePath: "/v2"
+tags:
+  - name: "order"
+    description: "Everything about placing a order request"
+schemes:
+  - "https"
+  - "http"
+paths:
+  /order:
+    post:
+      tags:
+        - "order"
+      summary: "Buy a new product request"
+      description: ""
+      operationId: "placeOrder"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - in: "body"
+          name: "body"
+          description: "Orders having detils of product and its plan"
+          required: true
+          schema:
+            $ref: "#/definitions/Order"
+      responses:
+        "200":
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/ApiResponse"
+        "405":
+          description: "Invalid input"
+          schema:
+            $ref: "#/definitions/ApiResponse"
+        "401":
+          description: "Un-Authorized request"
+          schema:
+            $ref: "#/definitions/ApiResponse"
+        "500":
+          description: "Server internal error"
+          schema:
+            $ref: "#/definitions/ApiResponse"
+  /authenticate:
+    post:
+      tags:
+        - "Authenticate"
+      summary: "Used to authenticate user"
+      description: ""
+      operationId: "authenticate"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - in: "body"
+          name: "body"
+          description: "Having username and password"
+          required: true
+          schema:
+            $ref: "#/definitions/AuthenticateRequest"
+      responses:
+        "200":
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/AuthenticateResponse"
+        "401":
+          description: "Un-Authorized request"
+          schema:
+            $ref: "#/definitions/ApiResponse"
+        "500":
+          description: "Server internal error"
+          schema:
+            $ref: "#/definitions/ApiResponse"
+definitions:
+  Order:
+    type: object
+    required:
+      - customerDetail
+      - installationDetail
+      - products
+      - package
+    properties:
+      customerDetail:
+        $ref: "#/definitions/CustomerDetail"
+      installationDetail:
+        $ref: "#/definitions/InstallationDetail"
+      products:
+        type: string
+        description: "Products type"
+        enum:
+          - "Internet"
+          - "TV"
+          - "Telephony"
+          - "Mobile"
+      package:
+        type: string
+        description: "Package type"
+        enum:
+          - "250Mbps"
+          - "1Gbps"
+          - "90 Channels"
+          - "140 Channels"
+          - "Free-On-Net-Calls"
+          - "Unlimited-Calls"
+          - "Prepaid"
+          - "Postpaid"
+  CustomerDetail:
+    type: object
+    required:
+      - uniqueid
+      - name
+      - phone
+      - email
+      - address
+    properties:
+      uniqueid:
+        type: integer
+        format: int64
+        minimum: 1
+        maximum: 999999999
+      name:
+        type: string
+        minLength: 2
+        maxLength: 30
+      phone:
+        type: string
+        minLength: 2
+        maxLength: 15
+      email:
+        type: string
+        minLength: 2
+        maxLength: 50
+      address:
+        $ref: "#/definitions/Address"
+  InstallationDetail:
+    type: object
+    required:
+      - date
+      - time
+      - address
+    properties:
+      date:
+        type: string
+      time:
+        type: string
+      address:
+        $ref: "#/definitions/Address"
+  Address:
+    type: object
+    required:
+      - street1
+      - city
+      - country
+      - zipCode
+    properties:
+      street1:
+        type: string
+        minLength: 2
+        maxLength: 50
+      street2:
+        type: string
+      city:
+        type: string
+        minLength: 2
+        maxLength: 20
+      country:
+        type: string
+        minLength: 2
+        maxLength: 20
+      zipCode:
+        type: string
+        minLength: 4
+        maxLength: 10
+  ApiResponse:
+    type: object
+    properties:
+      code:
+        type: integer
+        format: int32
+      type:
+        type: string
+      message:
+        type: string
+  AuthenticateRequest:
+    type: object
+    required:
+      - username
+      - password
+    properties:
+      username:
+        type: string
+      password:
+        type: string
+  AuthenticateResponse:
+    type: object
+    properties:
+      jwt:
+        type: string
